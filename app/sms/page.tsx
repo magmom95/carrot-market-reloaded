@@ -4,7 +4,6 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormState } from "react-dom";
 import { smsLogIn } from "./action";
-import { error } from "console";
 
 const initialState = {
   token: false,

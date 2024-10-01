@@ -4,6 +4,7 @@ import {
   PASSWORD_REGEX,
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
 
 const checkUsername = (username: string) => !username.includes("test");
@@ -16,6 +17,31 @@ const checkPassword = ({
   confirm_password: string;
 }) => password === confirm_password;
 
+const checkUniqueUsername = async (username: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      username,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !Boolean(user);
+};
+
+const checkUniqueEmail = async (email: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      email,
+    },
+    select: {
+      id: true,
+    },
+  });
+  return Boolean(user) === false;
+};
+
 const formSchema = z
   .object({
     username: z
@@ -25,13 +51,16 @@ const formSchema = z
       })
       .trim()
       .toLowerCase()
-      .transform((username) => `🔥 ${username}`)
-      .refine(checkUsername, "test는 안돼"),
-    email: z.string().email().toLowerCase(),
-    password: z
+      // .transform((username)=> `🔥 ${username}`)
+      .refine(checkUsername, "test는 안돼")
+      .refine(checkUniqueUsername, "사용자가 존재합니다."),
+    email: z
       .string()
-      .min(PASSWORD_MIN_LENGTH)
-      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+      .email()
+      .toLowerCase()
+      .refine(checkUniqueEmail, "존재하는 이메일입니다."),
+    password: z.string().min(PASSWORD_MIN_LENGTH),
+    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
   })
   // .refine(checkPassword, "비밀번호가 달라요") 이러면 글로벌 오류라고 생각함;
@@ -46,15 +75,11 @@ export async function createAccount(prevState: any, formData: FormData) {
     password: formData.get("password"),
     confirm_password: formData.get("confirm_password"),
   };
-  // try {
-  //   formSchema.parse(data);
-  // } catch (e) {
-  //   console.log(e);
-  // }
-  const result = formSchema.safeParse(data);
+
+  const result = await formSchema.safeParseAsync(data);
   if (!result.success) {
     return result.error.flatten();
   } else {
-    console.log(result.data);
+    console.log(result);
   }
 }

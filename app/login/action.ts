@@ -47,7 +47,6 @@ export async function login(prevState: any, formData: FormData) {
   if (!result.success) {
     return result.error.flatten();
   } else {
-    // console.log(result.data);
     const user = await db.user.findUnique({
       where: {
         email: result.data.email,

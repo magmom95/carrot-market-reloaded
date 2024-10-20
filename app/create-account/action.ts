@@ -1,9 +1,5 @@
 "use server";
-import {
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_REGEX,
-  PASSWORD_REGEX_ERROR,
-} from "@/lib/constants";
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 import bcrypt from "bcrypt";
 import db from "@/lib/db";
 import { z } from "zod";
@@ -29,13 +25,12 @@ const formSchema = z
       })
       .trim()
       .toLowerCase()
-      // .transform((username)=> `🔥 ${username}`)
       .refine(checkUsername, "test는 안돼"),
-    // .refine(checkUniqueUsername, "사용자가 존재합니다."),
+
     email: z.string().email().toLowerCase(),
-    // .refine(checkUniqueEmail, "존재하는 이메일입니다."),
+
     password: z.string().min(PASSWORD_MIN_LENGTH),
-    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+
     confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
   })
   .superRefine(async ({ username }, ctx) => {
@@ -76,7 +71,7 @@ const formSchema = z
       return z.NEVER;
     }
   })
-  // .refine(checkPassword, "비밀번호가 달라요") 이러면 글로벌 오류라고 생각함;
+
   .refine(checkPassword, {
     message: "패스워드가 일치하지 않습니다.",
     path: ["confirm_password"],

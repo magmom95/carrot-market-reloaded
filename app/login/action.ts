@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from "bcrypt";
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_REGEX,
@@ -7,7 +8,6 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -63,6 +63,7 @@ export async function login(prevState: any, formData: FormData) {
     if (success) {
       const session = await getSession();
       session.id = user?.id;
+      await session.save();
       redirect("/profile");
     } else {
       return {

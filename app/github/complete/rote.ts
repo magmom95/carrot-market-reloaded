@@ -1,4 +1,6 @@
-import { notFound } from "next/navigation";
+import db from "@/lib/db";
+import getSession from "@/lib/session";
+import { notFound, redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {

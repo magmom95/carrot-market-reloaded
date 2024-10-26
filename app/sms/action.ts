@@ -48,6 +48,30 @@ export async function smsLogIn(prevState: ActionState, formData: FormData) {
         error: result.error.flatten(),
       };
     } else {
+      await db.sMSToken.deleteMany({
+        where: {
+          user: {
+            phone: result.data,
+          },
+        },
+      });
+      const token = await getToken();
+      await db.sMSToken.create({
+        data: {
+          token,
+          user: {
+            connectOrCreate: {
+              where: {
+                phone: result.data,
+              },
+              create: {
+                username: crypto.randomBytes(10).toString("hex"),
+                phone: result.data,
+              },
+            },
+          },
+        },
+      });
       return {
         token: true,
       };

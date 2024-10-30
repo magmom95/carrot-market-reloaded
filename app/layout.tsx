@@ -4,6 +4,14 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Karrot Market",
+    default: "Karrot Market",
+  },
+  description: "Sell and buy all the things!",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
